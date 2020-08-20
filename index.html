@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backlog Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/af-2.3.5/b-1.6.3/cr-1.5.2/fc-3.3.1/fh-3.1.7/kt-2.5.2/r-2.2.5/rg-1.1.2/rr-1.2.7/sc-2.0.2/sp-1.1.1/sl-1.3.1/datatables.min.css"/>
+
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body id="backlog">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h4>Backlog Tracker</h4>
+            <div class="alert alert-danger alert-dismissible fade show" id="global_alert">
+                <button type="button" class="close" id="global_alert_dismiss" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="custom-error"></div>
+            </div>
+
+            <table id="backlog_table" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>ID</th>
+                    <th>Requested By</th>
+                    <th>Tool Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Tester</th>
+                    <th>Date Filed</th>
+                    <th>Date Closed</th>
+                    <th>Fix Confirmed</th>
+                    <th>Image Name</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="modal fade backlog_modal" id="id_create_update_form" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form class="backlog_form" id="update_create_form" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="id_tool_name" class="control-label">Tool Name</label>
+                            <select class="form-control" id="id_tool_name" name="tool_name">
+                                <option value="">------------</option>
+                                <option value="Expense Management/ My Request">Expense Management/ My Request</option>
+                                <option value="Service API">Service API</option>
+                                <option value="Webex support tool">Webex support tool</option>
+                                <option value="Backlog tool">Backlog tool</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_type" class="control-label">Type</label>
+                            <select class="form-control" id="id_type" name="type">
+                                <option value="">------------</option>
+                                <option value="Feature">Feature</option>
+                                <option value="Change">Change</option>
+                                <option value="Defect">Defect</option>
+                                <option value="Technical Debt">Technical Debt</option>
+                                <option value="Technical Spike">Technical Spike</option>
+                                <option value="Business Requirement">Business Requirement</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_description" class="control-label">Description</label>
+                            <textarea type="text" class="form-control" id="id_description"
+                                      name="description"></textarea>
+
+                        </div>
+                        <div class="form-group">
+                            <label for="id_priority" class="control-label">Priority</label>
+                            <select class="form-control" id="id_priority" name="priority">
+                                <option value="">------------</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="HOT">HOT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_tester" class="control-label">Tester</label>
+                            <input type="text" class="form-control" id="id_tester" name="tester">
+
+                        </div>
+                        <div class="form-group">
+
+                        <input type="file" name="image_name" accept="image/x-png,image/gif,image/jpeg" />
+                        </div>
+                        <div class="form-group">
+                            <label for="id_status" class="control-label">Status</label>
+                            <select class="form-control" id="id_status" name="status">
+                                <option value="">------------</option>
+                                <option value="New">New</option>
+                                <option value="Closed">Closed</option>
+                                <option value="Completed">Completed</option>
+                                <option value="In-progress">In-progress</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="classicbutton gray" data-dismiss="modal">Close</button>
+                        <button type="submit" class="classicbutton" id="id_submit_button">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade backlog_modal" id="id_delete_modal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <form class="backlog_form" id="delete_form" method="post">
+
+                <div class="modal-body delete-modal">
+                    Are you sure you want to delete this?
+<div id="delete_input">
+
+</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="gray classicbutton" data-dismiss="modal">Close</button>
+                    <button type="submit" class="classicbutton">Delete</button>
+                </div>
+</form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<footer>
+
+
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/af-2.3.5/b-1.6.3/cr-1.5.2/fc-3.3.1/fh-3.1.7/kt-2.5.2/r-2.2.5/rg-1.1.2/rr-1.2.7/sc-2.0.2/sp-1.1.1/sl-1.3.1/datatables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            crossorigin="anonymous"></script>
+
+    <script src="script.js"></script>
+</footer>
+</html>
