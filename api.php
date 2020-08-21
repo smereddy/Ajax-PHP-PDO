@@ -89,10 +89,10 @@ final class Backlog
             $status = filter_var($this->status, FILTER_SANITIZE_STRING);
             $tester = filter_var($this->tester, FILTER_SANITIZE_STRING);
             $image_name = filter_var($this->image_name, FILTER_SANITIZE_STRING);
-            if($status=="Closed"){
+            if ($status == "Closed") {
                 $date_closed = date('Y-m-d');
                 $stmt->bindParam(':date_closed', $date_closed);
-            }else{
+            } else {
                 $date_closed = null;
                 $stmt->bindParam(':date_closed', $date_closed, PDO::PARAM_NULL);
             }
@@ -147,10 +147,10 @@ final class Backlog
             $stmt->bindParam(':image_name', $image_name);
 
 
-            if($status=="Closed"){
+            if ($status == "Closed") {
                 $date_closed = date('Y-m-d');
                 $stmt->bindParam(':date_closed', $date_closed);
-            }else{
+            } else {
                 $date_closed = null;
                 $stmt->bindParam(':date_closed', $date_closed, PDO::PARAM_NULL);
             }
@@ -190,7 +190,8 @@ function JsonResponse($data, $status = 200)
     exit();
 }
 
-class BACKLOG_API{
+class BACKLOG_API
+{
 
 }
 
@@ -202,13 +203,11 @@ switch ($request) {
         getmethod();
         break;
     case 'POST':
-        if(isset($_POST['id'])){
+        if (isset($_POST['id'])) {
             putmethod($_POST);
-        }
-        elseif (isset($_POST['del_id'])){
+        } elseif (isset($_POST['del_id'])) {
             deletemethod($_POST);
-        }
-        else{
+        } else {
             postmethod($_POST);
         }
         break;
@@ -245,14 +244,21 @@ function getmethod()
 //data insert part are here
 function postmethod($data)
 {
+    //Upload file
+    $uploadedFile = null;
 
+    if (!empty($_FILES["file"]["name"])) {
+
+        $uploadedFile = fileUpload();
+
+    }
     $tool_name = $data['tool_name'];
     $type = $data['type'];
     $description = $data['description'];
     $priority = $data['priority'];
     $status = $data['status'];
     $tester = $data['tester'];
-    $image_name = $data['image_name'];
+    $image_name = $uploadedFile;
 
     $backlog = new Backlog();
     $backlog->tool_name = $tool_name;
@@ -290,6 +296,14 @@ function putmethod($data)
         JsonResponse(['error' => 'Resource Not Found'], 404);
     }
 
+    $uploadedFile = null;
+
+    if (!empty($_FILES["file"]["name"])) {
+
+        $uploadedFile = fileUpload();
+
+    }
+
     $requestor_id = $data['requestor_id'];
     $tool_name = $data['tool_name'];
     $type = $data['type'];
@@ -300,7 +314,7 @@ function putmethod($data)
     $fix_confirm = $data['fix_confirm'];
     $date_closed = $data['date_closed'];
     $tester = $data['tester'];
-    $image_name = $data['image_name'];
+    $image_name = $uploadedFile;
 
     $backlog = new Backlog();
 
@@ -347,6 +361,34 @@ function deletemethod($data)
     }
 
     JsonResponse(['message' => 'Resource has been deleted'], 204);
+}
+
+function fileUpload(){
+
+    // File path config
+    $uploadDir = './';
+
+    $fileName = basename($_FILES["file"]["name"]);
+    $targetFilePath = $uploadDir . $fileName;
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+
+    // Allow certain file formats
+    $allowTypes = array('jpg', 'png', 'jpeg');
+    if (in_array($fileType, $allowTypes)) {
+        // Upload file to the server
+        echo $targetFilePath;
+        echo "\n";
+        echo $_FILES["file"]["tmp_name"];
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $targetFilePath)) {
+            echo "test";
+             return $fileName;
+        } else {
+            JsonResponse(['error' => 'Sorry, there was an error uploading your file'], 405);
+        }
+    } else {
+        JsonResponse(['error' => 'Sorry, only JPG, JPEG, & PNG files are allowed to upload.'], 405);
+    }
+
 }
 
 ?>

@@ -1,9 +1,6 @@
-
-
 $(document).ready(function () {
 
     $('#global_alert').hide();
-
 
 
     $dropdown_button = "<div class=\"dropdown\">\n" +
@@ -48,15 +45,45 @@ $(document).ready(function () {
             $("div.toolbar")
                 .html('<button type="button" class="classicbutton" data-toggle="modal" data-target="#id_create_update_form">Add New</button>');
         },
-        language: {search: "",
-            searchPlaceholder: "Search"},
-        rowCallback: function(row, data, index) {
+        language: {
+            search: "",
+            searchPlaceholder: "Search"
+        },
+        rowCallback: function (row, data, index) {
             if (data.fix_confirm == 1) {
                 $('td:eq(10)', row).replaceWith("<td>Yes</td>");
-            }else {
+            } else {
                 $('td:eq(10)', row).replaceWith("<td>No</td>");
             }
+
+            if (data.image_name) {
+                $('td:eq(11)', row).replaceWith("<td><a href=\"javascript:void(0);\" src=\"" + data.image_name + "\" class=\"preview_image_click\">\n" +
+                    "    Click to Preview\n" +
+                    "</a></td>");
+
+            }
         }
+    });
+
+    $('table').find('a').click(function () {
+
+        console.log("got it")
+        var original = parseInt($(this).parents('tr').find('td:nth-child(4)').text()) + 5;
+
+        $(this).parents('tr').find('input[type=text]').val(original);
+        e.preventDefault();
+
+
+    });
+
+    $(document).on("click", "a.preview_image_click", function (e) {
+        e.preventDefault();
+
+        console.log("maybe?")
+
+        $('#imagepreview').attr('src', $(this).attr('src')); // here asign the image to the modal when the user click the enlarge link
+        $('#imagemodal').modal('show');
+
     });
 
     /* attach a submit handler to the form */
@@ -67,7 +94,13 @@ $(document).ready(function () {
 
         var formData = new FormData($(this)[0]);
 
-        formData.append("formdata", $(this).serialize())
+        formData.append("formdata", $(this).serialize());
+        formData.append('file', $('#id_iamge_name')[0].files[0]);
+
+        // console.log(input.files[0]);
+        console.log("2");
+        console.log($('#id_iamge_name')[0].files[0])
+
 
         console.log(formData)
 
@@ -112,7 +145,6 @@ $(document).ready(function () {
         var formData = new FormData($(this)[0]);
 
         formData.append("formdata", $(this).serialize())
-
 
 
         $.ajax({
@@ -193,7 +225,6 @@ $(document).ready(function () {
         $('#id_create_update_form').modal('toggle');
 
 
-
     });
 
     $('.backlog_modal').on('hidden.bs.modal', function (e) {
@@ -206,7 +237,14 @@ $(document).ready(function () {
     $('#backlog_table_length').addClass('selectWrapper');
     $('div.dataTables_length select').addClass('selectBox');
 
-    $("#global_alert_dismiss").on('click', function (){
+    $("#global_alert_dismiss").on('click', function () {
         $('#global_alert').hide();
     })
+
+
+    function ImagePreview(data) {
+        $('#imagepreview').attr('src', "./" + String(data.href)); // here asign the image to the modal when the user click the enlarge link
+        $('#imagemodal').modal('show');
+
+    }
 });
