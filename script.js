@@ -200,6 +200,9 @@ $(document).ready(function() {
                 var error = JSON.parse(xhr.responseText);
                 $('.custom-error').html(error["error"]);
                 $('#global_alert').show();
+                $("#global_alert").fadeTo(2000, 3000).slideUp(500, function () {
+                    $("#global_alert").slideUp(3000);
+                });
 
             },
             cache: false,
