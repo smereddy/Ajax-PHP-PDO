@@ -90,15 +90,17 @@ final class Backlog
             $status = filter_var($this->status, FILTER_SANITIZE_STRING);
             $tester = filter_var($this->tester, FILTER_SANITIZE_STRING);
             $image_name = filter_var($this->image_name, FILTER_SANITIZE_STRING);
-            if ($status == "Closed")
+
+            $date_para = ':date_closed';
+            if ($status === "Closed")
             {
                 $date_closed = date('Y-m-d');
-                $stmt->bindParam(':date_closed', $date_closed);
+                $stmt->bindParam($date_para, $date_closed);
             }
             else
             {
                 $date_closed = null;
-                $stmt->bindParam(':date_closed', $date_closed, PDO::PARAM_NULL);
+                $stmt->bindParam($date_para, $date_closed, PDO::PARAM_NULL);
             }
 
             $stmt->bindParam(':tool_name', $tool_name);
@@ -116,7 +118,7 @@ final class Backlog
                 ->conn
                 ->lastInsertId();
         }
-        catch(\Exception $exception)
+        catch(Exception $exception)
         {
             JsonResponse(['error' => $exception], 400);
         }
@@ -155,15 +157,16 @@ final class Backlog
             $stmt->bindParam(':tester', $tester);
             $stmt->bindParam(':image_name', $image_name);
 
-            if ($status == "Closed")
+            $date_para = ':date_closed';
+            if ($status === "Closed")
             {
                 $date_closed = date('Y-m-d');
-                $stmt->bindParam(':date_closed', $date_closed);
+                $stmt->bindParam($date_para, $date_closed);
             }
             else
             {
                 $date_closed = null;
-                $stmt->bindParam(':date_closed', $date_closed, PDO::PARAM_NULL);
+                $stmt->bindParam($date_para, $date_closed, PDO::PARAM_NULL);
             }
             $stmt->execute();
 
@@ -190,19 +193,6 @@ final class Backlog
 
         return $stmt->rowCount();
     }
-}
-
-/*
- * Helper functions
-*/
-function JsonResponse($data, $status = 200)
-{
-    /*
-     * This function is used to send a JsonResponse back to the client
-    */
-    http_response_code($status);
-    echo json_encode($data);
-    exit();
 }
 
 final class CustomRequest
@@ -402,6 +392,20 @@ final class CustomRequest
     }
 }
 
+
+/*
+ * Helper functions
+*/
+function JsonResponse($data, $status = 200)
+{
+    /*
+     * This function is used to send a JsonResponse back to the client
+    */
+    http_response_code($status);
+    echo json_encode($data);
+    exit();
+}
+
 $request = $_SERVER['REQUEST_METHOD'];
 
 $backlog = new Backlog();
@@ -434,5 +438,3 @@ switch ($request)
         JsonResponse(['error' => 'Resource Not Found'], 404);
         break;
 }
-
-?>
