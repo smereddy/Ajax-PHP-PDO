@@ -1,7 +1,5 @@
-$(document).ready(function () {
-
+$(document).ready(function() {
     $('#global_alert').hide();
-
 
     $dropdown_button = "<div class=\"dropdown\">\n" +
         "  <button class=\"btn dropdown-toggle\" type=\"button\" id=\"dropdownMenuButton\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">\n" +
@@ -15,41 +13,72 @@ $(document).ready(function () {
 
 
     var backlog_table = $('#backlog_table').DataTable({
-        "ajax": "api.php",
-        "columns": [
-            {"data": null, "defaultContent": $dropdown_button},
-            {"data": "id"},
-            {"data": "requestor_id"},
-            {"data": "tool_name"},
-            {"data": "type"},
-            {"data": "description"},
-            {"data": "priority"},
-            {"data": "tester"},
-            {"data": "date_filed"},
-            {"data": "date_closed"},
-            {"data": "fix_confirm"},
-            {"data": "image_name"},
-            {"data": "status"},
-        ],
-        "columnDefs": [
-            {"orderable": false, "targets": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]},
-            {"orderable": true, "targets": [1]},
+        'ajax': 'api.php',
+        'columns': [{
+            'data': null,
+            'defaultContent': $dropdown_button
+        },
             {
-                "targets": 0,
-                "data": null,
-                "orderable": false,
+                'data': 'id'
+            },
+            {
+                'data': 'requestor_id'
+            },
+            {
+                'data': 'tool_name'
+            },
+            {
+                'data': 'type'
+            },
+            {
+                'data': 'description'
+            },
+            {
+                'data': 'priority'
+            },
+            {
+                'data': 'tester'
+            },
+            {
+                'data': 'date_filed'
+            },
+            {
+                'data': 'date_closed'
+            },
+            {
+                'data': 'fix_confirm'
+            },
+            {
+                'data': 'image_name'
+            },
+            {
+                'data': 'status'
+            },
+        ],
+        'columnDefs': [{
+            'orderable': false,
+            'targets': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        },
+            {
+                'orderable': true,
+                'targets': [1]
+            },
+            {
+                'targets': [0],
+                'data': null,
+                'orderable': false
             }
         ],
-        "dom": '<"top"p<"pull-left"f><"pull-left"l><"toolbar">>ti<"bottom"><"clear">',
-        initComplete: function () {
-            $("div.toolbar")
-                .html('<button type="button" class="classicbutton" data-toggle="modal" data-target="#id_create_update_form">Add New</button>');
+        'dom': "<'top'p<'pull-left'f><'pull-left'l><'toolbar'>>ti<'bottom'><'clear'>",
+        initComplete: function() {
+            $('div.toolbar')
+                .html("<button type='button' class='classicbutton' data-toggle='modal' data-target='#id_create_update_form'>Add New</button>");
         },
         language: {
             search: "",
             searchPlaceholder: "Search"
         },
-        rowCallback: function (row, data, index) {
+        rowCallback: function(row, data, index) {
             if (data.fix_confirm == 1) {
                 $('td:eq(10)', row).replaceWith("<td>Yes</td>");
             } else {
@@ -60,128 +89,51 @@ $(document).ready(function () {
                 $('td:eq(11)', row).replaceWith("<td><a href=\"javascript:void(0);\" src=\"" + data.image_name + "\" class=\"preview_image_click\">\n" +
                     "    Click to Preview\n" +
                     "</a></td>");
-
+            }
+            if (data.requestor_id) {
+                $('td:eq(2)', row).replaceWith("<td>Jane Doe</td>");
+            } else {
+                $('td:eq(2)', row).replaceWith("<td>John Doe</td>");
             }
         }
     });
 
-    $('table').find('a').click(function () {
-
-        console.log("got it")
+    $('table').find('a').click(function() {
         var original = parseInt($(this).parents('tr').find('td:nth-child(4)').text()) + 5;
 
         $(this).parents('tr').find('input[type=text]').val(original);
         e.preventDefault();
-
-
     });
 
-    $(document).on("click", "a.preview_image_click", function (e) {
+    $(document).on('click', 'a.preview_image_click', function(e) {
         e.preventDefault();
 
-        console.log("maybe?")
-
-        $('#imagepreview').attr('src', $(this).attr('src')); // here asign the image to the modal when the user click the enlarge link
+        $('#imagepreview').attr('src', $(this).attr('src'));
         $('#imagemodal').modal('show');
-
     });
 
-    /* attach a submit handler to the form */
-    $("#update_create_form").submit(function (event) {
+    $('#update_create_form').submit(function(event) {
+        let formData = new FormData($(this)[0]);
 
-        /* stop form from submitting normally */
         event.preventDefault();
+        formData.append('formdata', $(this).serialize());
+        formData.append('file', $('#upload')[0].files[0]);
 
-        var formData = new FormData($(this)[0]);
-
-        formData.append("formdata", $(this).serialize());
-        formData.append('file', $('#id_iamge_name')[0].files[0]);
-
-        // console.log(input.files[0]);
-        console.log("2");
-        console.log($('#id_iamge_name')[0].files[0])
-
-
-        console.log(formData)
-
-        $.ajax({
-            url: 'api.php', // url where to submit the request
-            type: "POST", // type of action POST || GET
-            dataType: 'json', // data type
-            data: formData, // post data || get data
-            success: function (result) {
-                // you can see the result from the console
-                // tab of the developer tools
-                console.log("success");
-                $('#id_create_update_form').modal('toggle');
-                $('#update_create_form').trigger("reset");
-                backlog_table.ajax.reload();
-            },
-            error: function (xhr, resp, text) {
-                $('#id_create_update_form').modal('toggle');
-                $('#update_create_form').trigger("reset");
-                $('.custom-error').html(text);
-                $('#global_alert').show();
-            },
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-
-        $("#id_submit_button").html('Save');
-
-
+        postdata(formData, '#id_create_update_form', '#update_create_form');
+        $('#id_submit_button').html('Save');
     });
 
-    $("#delete_form").submit(function (event) {
+    $('#delete_form').submit(function(event) {
+        let formData = new FormData($(this)[0]);
 
-        console.log("here in delete");
-
-        /* stop form from submitting normally */
         event.preventDefault();
-
-        // var id = $('#id_input').val();
-
-        var formData = new FormData($(this)[0]);
-
-        formData.append("formdata", $(this).serialize())
-
-
-        $.ajax({
-            url: 'api.php', // url where to submit the request
-            type: "POST", // type of action POST || GET
-            dataType: 'json', // data type
-            data: formData, // post data || get data
-            success: function (result) {
-                // you can see the result from the console
-                // tab of the developer tools
-                console.log("success");
-                $('#id_delete_modal').modal('toggle');
-                $('#delete_form').trigger("reset");
-                backlog_table.ajax.reload();
-            },
-            error: function (xhr, resp, text) {
-                $('#id_delete_modal').modal('toggle');
-                $('#delete_form').trigger("reset");
-                $('.custom-error').html(text);
-                $('#global_alert').show();
-
-            },
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-
+        formData.append('formdata', $(this).serialize())
+        postdata(formData, '#id_delete_modal', '#delete_form');
     });
 
 
-    $("body").on("click", ".delete-item", function () {
-
-        console.log("delete");
-
-
-        var id = $(this).closest('tr').find('td:eq(1)').text()
-
+    $('body').on('click', '.delete-item', function() {
+        const id = $(this).closest('tr').find('td:eq(1)').text();
 
         $("<input type='hidden' value='" + id + "' />")
             .attr("id", "id_input")
@@ -189,62 +141,107 @@ $(document).ready(function () {
             .appendTo("#delete_input");
 
         $('#id_delete_modal').modal('toggle');
-
-
     });
 
-    $("body").on("click", ".edit-item", function () {
-
-        console.log("success");
-
-
-        var id = $(this).closest('tr').find('td:eq(1)').text()
-        var tool = $(this).closest('tr').find('td:eq(3)').text()
-        var type = $(this).closest('tr').find('td:eq(4)').text()
-        var description = $(this).closest('tr').find('td:eq(5)').text()
-        var priority = $(this).closest('tr').find('td:eq(6)').text()
-        var tester = $(this).closest('tr').find('td:eq(7)').text()
-        var status = $(this).closest('tr').find('td:eq(12)').text()
+    $('body').on('click', '.edit-item', function() {
+        const formId = '#update_create_form';
+        const id = $(this).closest('tr').find('td:eq(1)').text();
+        const tool = $(this).closest('tr').find('td:eq(3)').text();
+        const type = $(this).closest('tr').find('td:eq(4)').text();
+        const description = $(this).closest('tr').find('td:eq(5)').text();
+        const priority = $(this).closest('tr').find('td:eq(6)').text();
+        const tester = $(this).closest('tr').find('td:eq(7)').text();
+        const status = $(this).closest('tr').find('td:eq(12)').text();
 
 
-        $("#update_create_form").find("select[name='tool_name']").val(tool);
-        $("#update_create_form").find("select[name='type']").val(type);
-        $("#update_create_form").find("textarea[name='description']").val(description);
-        $("#update_create_form").find("select[name='priority']").val(priority);
-        $("#update_create_form").find("input[name='tester']").val(tester);
-        $("#update_create_form").find("select[name='status']").val(status);
-        // $("#update_create_form").find(".edit-id").val(id);
+        $(formId).find("select[name='tool_name']").val(tool);
+        $(formId).find("select[name='type']").val(type);
+        $(formId).find("textarea[name='description']").val(description);
+        $(formId).find("select[name='priority']").val(priority);
+        $(formId).find("input[name='tester']").val(tester);
+        $(formId).find("select[name='status']").val(status);
 
         $("<input type='hidden' value='" + id + "' />")
             .attr("id", "id_input")
             .attr("name", "id")
-            .appendTo("#update_create_form");
+            .appendTo(formId);
 
-        $("#id_submit_button").html('Update');
-
+        $('#id_submit_button').html('Update');
         $('#id_create_update_form').modal('toggle');
-
-
     });
 
-    $('.backlog_modal').on('hidden.bs.modal', function (e) {
-        $('form').trigger("reset");
-        $("#id_input").remove();
-        $("#id_submit_button").html('Save');
+    $('.backlog_modal').on('hidden.bs.modal', function(e) {
+        $('form').trigger('reset');
+        $('#id_input').remove();
+        $('#id_submit_button').html('Save');
+        clearDropzone();
     })
 
     $('div.dataTables_filter input').addClass('round search');
     $('#backlog_table_length').addClass('selectWrapper');
     $('div.dataTables_length select').addClass('selectBox');
 
-    $("#global_alert_dismiss").on('click', function () {
+    $('#global_alert_dismiss').on('click', function() {
         $('#global_alert').hide();
     })
 
+    function postdata(formData, modal, form) {
+        $.ajax({
+            url: 'api.php',
+            type: 'POST',
+            dataType: 'json',
+            data: formData,
+            success: function(result) {
+                afterPost(modal, form);
+                backlog_table.ajax.reload();
+            },
+            error: function(xhr, resp, text) {
+                afterPost(modal, form);
+                var error = JSON.parse(xhr.responseText);
+                $('.custom-error').html(error["error"]);
+                $('#global_alert').show();
 
-    function ImagePreview(data) {
-        $('#imagepreview').attr('src', "./" + String(data.href)); // here asign the image to the modal when the user click the enlarge link
-        $('#imagemodal').modal('show');
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        })
+    }
 
+    function afterPost(modal, form) {
+        $(modal).modal('toggle');
+        $(form).trigger('reset');
+        clearDropzone();
+    }
+
+    function showFileName(name) {
+        var imgNameField = $("#uploaded_img_name");
+        $('#uploaded_img_name').html(name);
+        $("#uploaded_img_name").show();
+    }
+
+
+    $('#upload').on('change', function(e) {
+        showFileName(e.target.files[0].name);
+    })
+
+    $("#upload_link").on('click', function(e) {
+        console.log(document.getElementById("upload").value);
+        e.preventDefault();
+        $("#upload:hidden").trigger('click');
+    });
+
+    $('#drop_zone')
+        .on('dragover', false)
+
+        .on('drop', function(e) {
+            $("#upload")[0].files = e.originalEvent.dataTransfer.files;
+            showFileName(e.originalEvent.dataTransfer.files[0].name);
+            return false;
+        });
+
+    function clearDropzone(modal, form) {
+        $('#upload').val("");
+        $('#uploaded_img_name').css('display', 'none');
     }
 });
