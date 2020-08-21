@@ -1,9 +1,10 @@
 <?php
 final class Database
-{
-
+{/*
+ * Database class to connect with the database
+*/
     private $db_host = 'localhost';
-    private $db_name = 'backlog';
+    private $db_name = 'backlog'; // Please change this if you have a different database
     private $db_username = 'root';
     private $db_password = 'root';
 
@@ -26,7 +27,9 @@ final class Database
 }
 
 final class Backlog
-{
+{/*
+ * Implementing a Backlog Model object and functions to perform CRUD operations
+*/
     public $conn;
     public $table_name = 'back_log';
     public $id;
@@ -195,8 +198,10 @@ final class Backlog
     }
 }
 
-final class CustomRequest
-{
+final class RequestHandler
+{/*
+ * Creating a custom Request handler to perform GET, POST, PUT, DELETE
+*/
     public function __construct(Backlog $backlog)
     {
         $this->backlogObject = $backlog;
@@ -409,7 +414,7 @@ function JsonResponse($data, $status = 200)
 $request = $_SERVER['REQUEST_METHOD'];
 
 $backlog = new Backlog();
-$custom_request = new CustomRequest($backlog);
+$custom_request = new RequestHandler($backlog);
 
 switch ($request)
 {
